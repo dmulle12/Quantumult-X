@@ -1,0 +1,9 @@
+# Quantumult X Rewrite 语法参考（仅示例；example.invalid 为保留域名）
+# 取消注释前，请替换为自己控制并已核实的测试端点。
+
+[rewrite_local]
+;^https?://api\.example\.invalid/v1/ping$ url reject-200
+;^https?://api\.example\.invalid/v1/data$ url response-body "\"demo\":true" response-body "\"demo\":false"
+
+[mitm]
+; hostname = api.example.invalid
