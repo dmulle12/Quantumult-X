@@ -1,43 +1,43 @@
 # Quantumult-X
 
-一套可审阅、可调整的 Quantumult X 通用配置仓库：主配置、远程分流规则、可选应用重写说明，以及基础校验脚本。
+A reviewable, customizable general-purpose Quantumult X configuration repository containing a main profile, remote routing rules, optional app rewrite guidance, and a basic validation script.
 
-> **安全默认值：** 仓库设计为私有；不包含节点订阅、账号凭据、MITM 私钥或证书。应用重写资源默认关闭。规则数据由一个公开的用户规则仓库提供。
+> **Security defaults:** This repository is intended to be private. It contains no server subscriptions, account credentials, MITM private keys, or certificates. App rewrite resources are disabled by default. Rule data is provided by a public, user-maintained rules repository.
 
-## 文件
+## Files
 
-- [`Quantumult-X.conf`](./Quantumult-X.conf)：可导入的基础配置。
-- [`docs/RULES.md`](./docs/RULES.md)：规则来源、匹配顺序与调整方法。
-- [`docs/REWRITES.md`](./docs/REWRITES.md)：应用级重写范围、MITM 提示和启用步骤。
-- [`snippets/rewrite-examples.snippet`](./snippets/rewrite-examples.snippet)：仅使用保留域名的重写语法示例，不会影响真实网站。
-- [`tools/validate_config.py`](./tools/validate_config.py)：检查配置结构、URL 与默认关闭状态。
+- [`Quantumult-X.conf`](./Quantumult-X.conf): An importable base configuration.
+- [`docs/RULES.md`](./docs/RULES.md): Rule sources, matching order, and customization guidance.
+- [`docs/REWRITES.md`](./docs/REWRITES.md): App rewrite scope, MITM considerations, and enablement steps.
+- [`snippets/rewrite-examples.snippet`](./snippets/rewrite-examples.snippet): Rewrite syntax examples using only reserved domains; they do not affect real websites.
+- [`tools/validate_config.py`](./tools/validate_config.py): Checks the configuration structure, URLs, and disabled-by-default settings.
 
-## 快速开始
+## Quick Start
 
-1. 在 Quantumult X 中备份当前配置；从本仓库下载 `Quantumult-X.conf`，通过文件导入。
-2. 在 `[server_remote]` 中填入你**自己信任的服务商**提供的 Quantumult X 订阅 URL；本仓库没有替你选择服务商，也没有伪造节点。
-3. 检查服务商节点标签与 `[filter_local]` 的策略名称是否匹配。模板使用内置 `proxy`、`direct`、`reject` 策略。
-4. 更新远程资源，检查 Quantumult X 的资源/活动日志。若网络环境无法访问 GitHub，可替换为你信任且可达的镜像源。
-5. 应用重写保持关闭。只有明确需要某应用规则并审阅上游内容后，才启用对应行；HTTPS 重写还需要在应用中按官方流程启用 MitM 并安装/信任 Quantumult X 证书。
+1. Back up your current configuration in Quantumult X. Download `Quantumult-X.conf` from this repository and import it as a file.
+2. Add a Quantumult X subscription URL provided by a provider **you trust** to `[server_remote]`. This repository does not select a provider or include fabricated nodes.
+3. Check that your provider's node tags match the policy names in `[filter_local]`. The template uses the built-in `proxy`, `direct`, and `reject` policies.
+4. Update the remote resources and inspect the resource and activity logs in Quantumult X. If your network cannot access GitHub, you can replace the URLs with a mirror that you trust and can reach.
+5. Keep app rewrites disabled. Enable a resource only when you specifically need its app rules and have reviewed the upstream content. HTTPS rewrites also require enabling MitM in the app according to its official procedure and installing and trusting the Quantumult X certificate.
 
-## 当前默认行为
+## Default Behavior
 
-- 广告与跟踪域名：`reject`。
-- GFW 白名单例外、`loc-cn`：`direct`。
-- GFW 规则：`proxy`。
-- 局域网与中国大陆 IP：`direct`。
-- 其余流量：`proxy`。
+- Ad and tracking domains: `reject`.
+- GFW whitelist exceptions and `loc-cn`: `direct`.
+- GFW rules: `proxy`.
+- LAN and mainland China IP addresses: `direct`.
+- All other traffic: `proxy`.
 
-这是适合需要中国大陆直连与代理的通用起点，不保证适合所有地区、运营商、应用或法规环境。若你不需要中国大陆分流，可从 `[filter_remote]` 移除 `loc-cn`，并从 `[filter_local]` 移除 `geoip, cn, direct`。远程列表可能误拦截；排障时优先临时停用对应资源并检查命中记录。
+This is a general starting point for users who need direct routing and proxy routing for mainland China. It is not guaranteed to suit every region, carrier, app, or regulatory environment. If you do not need mainland-China routing, remove `loc-cn` from `[filter_remote]` and `geoip, cn, direct` from `[filter_local]`. Remote lists may block traffic incorrectly; when troubleshooting, first disable the relevant resource temporarily and inspect the match logs.
 
-## 上游与许可
+## Upstream Sources and Licenses
 
-远程规则和重写由 [`dmulle12/rules`](https://github.com/dmulle12/rules) 发布；其中广告规则由该项目转换自 Hagezi DNS Blocklists，具体来源、许可和更新策略请查阅上游说明。此仓库只引用远程资源，不复制其规则数据。Quantumult X 语法依据 [官方示例配置](https://github.com/crossutility/Quantumult-X/blob/master/sample.conf) 与 [官方 Rewrite 样例](https://github.com/crossutility/Quantumult-X/blob/master/rewrite.md)。
+Remote rules and rewrites are published by [`dmulle12/rules`](https://github.com/dmulle12/rules). The advertising rules in that project are converted from Hagezi DNS Blocklists; see the upstream documentation for specific sources, licenses, and update policies. This repository references remote resources without copying their rule data. Quantumult X syntax is based on the [official sample configuration](https://github.com/crossutility/Quantumult-X/blob/master/sample.conf) and the [official Rewrite examples](https://github.com/crossutility/Quantumult-X/blob/master/rewrite.md).
 
-## 校验
+## Validation
 
 ```bash
 python3 tools/validate_config.py
 ```
 
-校验通过只代表配置结构与预期安全默认值符合仓库规则；最终能否导入、规则是否命中，应在 Quantumult X 中检查。
+Passing validation means only that the configuration structure and expected security defaults meet this repository's checks. Verify importability and rule matching in Quantumult X.

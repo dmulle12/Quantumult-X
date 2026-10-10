@@ -1,28 +1,28 @@
-# 规则集说明
+# Rule Set Guide
 
-## 当前启用的远程资源
+## Currently Enabled Remote Resources
 
-| 资源 | 默认策略 | 用途 |
+| Resource | Default Policy | Purpose |
 |---|---|---|
-| `reject.quanx` | `reject` | 广告/追踪等拦截规则；大型规则集可能影响个别站点功能。 |
-| `gfw-skip.quanx` | `direct` | 代理规则中的直连例外。 |
-| `loc-cn.quanx` | `direct` | 中国大陆域名直连。 |
-| `gfw.quanx` | `proxy` | GFWList 转换的代理域名规则。 |
+| `reject.quanx` | `reject` | Blocks ads and tracking. Large rule sets may affect functionality on some sites. |
+| `gfw-skip.quanx` | `direct` | Direct-routing exceptions to proxy rules. |
+| `loc-cn.quanx` | `direct` | Direct routing for mainland China domains. |
+| `gfw.quanx` | `proxy` | Proxy-domain rules converted from GFWList. |
 
-资源 URL 来自 [`dmulle12/rules`](https://github.com/dmulle12/rules)，其 `rel` 分支会自动更新。此仓库的主配置按从上到下的顺序列出资源；出现冲突时可在 Quantumult X 命中记录中核对，必要时调整顺序或停用单条资源。
+Resource URLs come from [`dmulle12/rules`](https://github.com/dmulle12/rules), whose `rel` branch is updated automatically. The main profile in this repository lists resources from top to bottom. If rules conflict, check the match logs in Quantumult X and, if necessary, adjust the order or disable an individual resource.
 
-## 本地规则
+## Local Rules
 
-`[filter_local]` 中的 `geoip, lan, direct` 与 `geoip, cn, direct` 处理局域网和中国大陆 IP；`final, proxy` 是兜底。若策略名称与你的 Quantumult X 版本/节点设置不符，先确认内置策略名与已导入的节点，再修改，不要直接添加未知组名。
+In `[filter_local]`, `geoip, lan, direct` and `geoip, cn, direct` route LAN and mainland China IP addresses directly; `final, proxy` is the fallback. If the policy names do not match your Quantumult X version or node setup, first verify the built-in policy names and imported nodes before making changes. Do not add unknown group names.
 
-若你不需要中国大陆直连，删除 `geoip, cn, direct` 并停用 `loc-cn.quanx`。如希望为特定服务指定策略，在 `[filter_local]` 中添加精确的 `host-suffix` / `host` 规则，并放在 `final` 前面。例如：
+If you do not need direct routing for mainland China, remove `geoip, cn, direct` and disable `loc-cn.quanx`. To assign a policy to a specific service, add a precise `host-suffix` or `host` rule to `[filter_local]` before `final`. For example:
 
 ```ini
 ; host-suffix, example.com, direct
 ```
 
-`example.com` 仅为示例域名，请替换为自己确认的域名。避免使用过宽的关键字或通配规则。
+`example.com` is a placeholder domain; replace it with a domain you have verified. Avoid overly broad keywords or wildcard rules.
 
-## 上游范围与限制
+## Upstream Scope and Limitations
 
-上游 `reject` 列表包含聚合广告/跟踪规则，维护者说明它不能移除与内容同域的原生信息流广告；不要因为单个漏网广告就屏蔽整个内容服务域名。上游亦说明 `loc-cn` 代表规则归类，不保证每个域名的服务器都位于中国大陆。来源、构建说明与许可证见上游 README。
+The upstream `reject` list aggregates ad and tracking rules. Its maintainers state that it cannot remove native in-feed ads served from the same domain as the content; do not block an entire content service domain just because one ad remains. The upstream project also notes that `loc-cn` is a rule classification and does not guarantee that every listed domain is served from mainland China. See the upstream README for sources, build details, and licenses.

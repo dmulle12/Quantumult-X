@@ -1,29 +1,29 @@
-# Rewrite / MitM 说明
+# App Rewrites and MitM
 
-## 默认状态
+## Default State
 
-`Quantumult-X.conf` 列出三项可选上游资源，但全部设为 `enabled=false`：
+`Quantumult-X.conf` lists three optional upstream resources, all set to `enabled=false`:
 
-- Bilibili：过滤部分广告接口、首页信息流项目，并调整部分个人页/导航响应。
-- Weibo：过滤部分广告响应及信息流推广项目。
-- FQ Reader：拦截上游规则中列出的若干广告/统计域名。
+- Bilibili: Filters some ad endpoints and home-feed items, and modifies some profile and navigation responses.
+- Weibo: Filters some ad responses and promoted items in the feed.
+- FQ Reader: Blocks several advertising and analytics domains listed in the upstream rules.
 
-规则会随上游变化；这里只描述目前审阅到的行为，不能保证未来版本行为不变。启用前请查看对应的 [上游规则文件](https://github.com/dmulle12/rules/tree/main/source) 与构建结果。
+Rules may change upstream. This document describes only the behavior reviewed at the time of writing and does not guarantee that future versions will behave the same way. Before enabling a resource, review the corresponding [upstream rule files](https://github.com/dmulle12/rules/tree/main/source) and build output.
 
-## 启用前须知
+## Before Enabling
 
-1. 重写会改变特定 App 的请求/响应，可能导致页面、搜索、登录、播放或其他功能异常；停用该资源可回滚。
-2. HTTPS 内容重写通常需要 Quantumult X MitM 证书。安装并信任根证书后，相关 HTTPS 流量可被本机解密检查。只对自己控制的设备启用，并了解其影响。
-3. 不要把 `[mitm]` 的 `p12`、`passphrase`、私钥或个人证书提交到仓库。模板不包含这些资料，也不默认配置 MitM 主机名。
-4. 只启用你实际使用且愿意修改其流量的应用规则；不需要的应用可保持禁用或删除对应行。
+1. Rewrites modify requests or responses for specific apps and may cause pages, search, sign-in, playback, or other features to malfunction. Disable the resource to roll back the changes.
+2. Rewriting HTTPS content usually requires a Quantumult X MitM certificate. After installing and trusting the root certificate, the device can decrypt and inspect the relevant HTTPS traffic locally. Enable this only on devices you control and understand the implications.
+3. Do not commit `[mitm]` `p12` or `passphrase` values, private keys, or personal certificates to the repository. The template contains none of these and does not configure MitM hostnames by default.
+4. Enable only rules for apps you use and whose traffic you are willing to modify. Keep unused app rules disabled or remove their entries.
 
-## 启用步骤
+## Enablement Steps
 
-1. 打开 `Quantumult-X.conf` 的 `[rewrite_remote]`，只将所需资源的 `enabled=false` 改为 `enabled=true`。
-2. 在 Quantumult X 中更新资源，查看资源详情中的 `hostname` 与规则，确认范围。
-3. 如应用提示需要 MitM，先阅读 Quantumult X 官方说明，再在应用内启用 MitM、生成并安装证书，并在系统设置中显式信任。证书安装操作不由此模板自动完成。
-4. 验证目标 App 功能。异常时先禁用刚启用的资源并重连隧道。
+1. Open `[rewrite_remote]` in `Quantumult-X.conf` and change `enabled=false` to `enabled=true` only for the resources you need.
+2. Update the resources in Quantumult X. Review the `hostname` and rules in each resource's details to confirm their scope.
+3. If the app indicates that MitM is required, first read the official Quantumult X documentation. Then enable MitM in the app, generate and install the certificate, and explicitly trust it in system settings. This template does not install certificates automatically.
+4. Verify that the target app still works. If something goes wrong, disable the resource you just enabled and reconnect the tunnel.
 
-## 本地语法示例
+## Local Syntax Example
 
-[`../snippets/rewrite-examples.snippet`](../snippets/rewrite-examples.snippet) 仅包含对 `example.invalid` 保留域名的注释样例，不会拦截真实 App 流量。
+[`../snippets/rewrite-examples.snippet`](../snippets/rewrite-examples.snippet) contains commented examples using only the reserved `example.invalid` domain; they do not intercept real app traffic.
