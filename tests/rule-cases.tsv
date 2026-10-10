@@ -1,0 +1,11 @@
+# host<TAB>expected first-party match; final:proxy is the catch-all fallback
+github.com	proxy:github.com
+raw.githubusercontent.com	proxy:githubusercontent.com
+api.openai.com	proxy:openai.com
+subdomain.docker.io	proxy:docker.io
+bilibili.com	direct:bilibili.com
+api.weibo.cn	direct:weibo.cn
+img.xhscdn.com	direct:xhscdn.com
+mygithub.com	final:proxy
+github.com.attacker.invalid	final:proxy
+unknown.example.invalid	final:proxy

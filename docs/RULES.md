@@ -1,28 +1,38 @@
-# Rule Set Guide
+# First-Party Rule Sets
 
-## Currently Enabled Remote Resources
+## What is active
 
-| Resource | Default Policy | Purpose |
+The importable profile embeds the two rule sources below in `[filter_local]`. They are authored and maintained in this repository; no external filter resource is loaded.
+
+| Source | Policy | Scope |
 |---|---|---|
-| `reject.quanx` | `reject` | Blocks ads and tracking. Large rule sets may affect functionality on some sites. |
-| `gfw-skip.quanx` | `direct` | Direct-routing exceptions to proxy rules. |
-| `loc-cn.quanx` | `direct` | Direct routing for mainland China domains. |
-| `gfw.quanx` | `proxy` | Proxy-domain rules converted from GFWList. |
+| [`proxy-services.list`](../rulesets/proxy-services.list) | `proxy` | Selected developer, AI, and global content-service domains |
+| [`direct-cn.list`](../rulesets/direct-cn.list) | `direct` | Selected mainland China service domains |
 
-Resource URLs come from [`dmulle12/rules`](https://github.com/dmulle12/rules), whose `rel` branch is updated automatically. The main profile in this repository lists resources from top to bottom. If rules conflict, check the match logs in Quantumult X and, if necessary, adjust the order or disable an individual resource.
+The domains are hand-curated, conservative suffix matches. They are not copied from or synchronized with a public blocklist, and they are **not exhaustive**. The optional [`privacy-reject.optional.list`](../rulesets/privacy-reject.optional.list) is not embedded and has no effect unless you deliberately copy selected entries into `[filter_local]`.
 
-## Local Rules
+## Match order
 
-In `[filter_local]`, `geoip, lan, direct` and `geoip, cn, direct` route LAN and mainland China IP addresses directly; `final, proxy` is the fallback. If the policy names do not match your Quantumult X version or node setup, first verify the built-in policy names and imported nodes before making changes. Do not add unknown group names.
+The profile evaluates its local rules in this order:
 
-If you do not need direct routing for mainland China, remove `geoip, cn, direct` and disable `loc-cn.quanx`. To assign a policy to a specific service, add a precise `host-suffix` or `host` rule to `[filter_local]` before `final`. For example:
+1. Selected proxy-service suffixes (`proxy-services.list`).
+2. Selected mainland service suffixes (`direct-cn.list`).
+3. `geoip, lan, direct`.
+4. `geoip, cn, direct`.
+5. `final, proxy` for unmatched traffic.
 
-```ini
-; host-suffix, example.com, direct
-```
+Quantumult X processes filter rules in order. Keep specific exceptions before broader matches. A `host-suffix` entry matches the listed domain and its subdomains, not merely strings that happen to end with the same characters; for example, `github.com.attacker.invalid` is not a match for `github.com`.
 
-`example.com` is a placeholder domain; replace it with a domain you have verified. Avoid overly broad keywords or wildcard rules.
+## Optional privacy blocks
 
-## Upstream Scope and Limitations
+The optional reject list includes ad and analytics domains that may also be used by site features, attribution, or embedded content. Blocking them can cause breakage. It is deliberately excluded from the generated default profile. If you choose to use an entry, review it first and add it above `final, proxy` in `[filter_local]`; rebuild and run the checks afterward.
 
-The upstream `reject` list aggregates ad and tracking rules. Its maintainers state that it cannot remove native in-feed ads served from the same domain as the content; do not block an entire content service domain just because one ad remains. The upstream project also notes that `loc-cn` is a rule classification and does not guarantee that every listed domain is served from mainland China. See the upstream README for sources, build details, and licenses.
+## Change and test
+
+1. Add or remove a three-column Quantumult X rule in the relevant `.list` file, following the existing `host-suffix, domain, policy` form.
+2. Keep proxy-service rules ahead of direct-service rules when precedence matters. Avoid broad `host-keyword` matches and speculative top-level domains.
+3. Run `python3 tools/build_config.py` to update the generated section of `Quantumult-X.conf`.
+4. Run `python3 tools/build_config.py --check`, `python3 tools/validate_config.py`, and `python3 tools/test_rules.py`.
+5. Import the profile and confirm the effective policy in Quantumult X's match/activity logs.
+
+The regression cases in [`../tests/rule-cases.tsv`](../tests/rule-cases.tsv) cover known examples, suffix boundaries, and the fallback. They do not substitute for app-level or network testing. Do not add a provider subscription, private credentials, or MITM certificate material to this repository.

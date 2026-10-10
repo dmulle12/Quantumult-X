@@ -1,0 +1,27 @@
+# First-party editorial set: commonly used developer, AI, and global content services.
+# These are hand-curated host suffixes, not imported from a third-party rule feed.
+host-suffix, anthropic.com, proxy
+host-suffix, claude.ai, proxy
+host-suffix, docker.com, proxy
+host-suffix, docker.io, proxy
+host-suffix, gitlab.com, proxy
+host-suffix, gitlab.io, proxy
+host-suffix, github.com, proxy
+host-suffix, githubassets.com, proxy
+host-suffix, githubusercontent.com, proxy
+host-suffix, google.com, proxy
+host-suffix, googleapis.com, proxy
+host-suffix, googlevideo.com, proxy
+host-suffix, gstatic.com, proxy
+host-suffix, chatgpt.com, proxy
+host-suffix, openai.com, proxy
+host-suffix, oaistatic.com, proxy
+host-suffix, oaiusercontent.com, proxy
+host-suffix, npmjs.com, proxy
+host-suffix, npmjs.org, proxy
+host-suffix, pypi.org, proxy
+host-suffix, pythonhosted.org, proxy
+host-suffix, reddit.com, proxy
+host-suffix, wikipedia.org, proxy
+host-suffix, youtube.com, proxy
+host-suffix, ytimg.com, proxy

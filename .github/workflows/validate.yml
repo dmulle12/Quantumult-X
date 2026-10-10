@@ -16,5 +16,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+      - name: Check generated profile is up to date
+        run: python3 tools/build_config.py --check
       - name: Validate profile structure and safe defaults
         run: python3 tools/validate_config.py
+      - name: Test curated domain routing and suffix boundaries
+        run: python3 tools/test_rules.py

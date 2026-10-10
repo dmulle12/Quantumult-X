@@ -1,0 +1,12 @@
+# Optional, intentionally NOT included in the generated default profile.
+# Blocking these services can suppress ads/analytics but may break site features or attribution.
+host-suffix, adnxs.com, reject
+host-suffix, criteo.com, reject
+host-suffix, criteo.net, reject
+host-suffix, doubleclick.net, reject
+host-suffix, googleadservices.com, reject
+host-suffix, googlesyndication.com, reject
+host-suffix, hotjar.com, reject
+host-suffix, outbrain.com, reject
+host-suffix, scorecardresearch.com, reject
+host-suffix, taboola.com, reject

@@ -1,43 +1,44 @@
 # Quantumult-X
 
-A reviewable, customizable general-purpose Quantumult X configuration repository containing a main profile, remote routing rules, optional app rewrite guidance, and a basic validation script.
+A reviewable Quantumult X profile with **project-authored, first-party routing rules**, a deterministic build step, an optional privacy blocklist, and safe rewrite examples. The profile does not download routing rules or app rewrites from third-party feeds.
 
-> **Security defaults:** This repository is intended to be private. It contains no server subscriptions, account credentials, MITM private keys, or certificates. App rewrite resources are disabled by default. Rule data is provided by a public, user-maintained rules repository.
+> **Security defaults:** Back up your current profile before importing. No proxy subscription, credentials, MITM private key, or certificate is included. Remote rule and rewrite sections are empty. The optional ad/analytics reject set is not active by default.
 
-## Files
+## Repository layout
 
-- [`Quantumult-X.conf`](./Quantumult-X.conf): An importable base configuration.
-- [`docs/RULES.md`](./docs/RULES.md): Rule sources, matching order, and customization guidance.
-- [`docs/REWRITES.md`](./docs/REWRITES.md): App rewrite scope, MITM considerations, and enablement steps.
-- [`snippets/rewrite-examples.snippet`](./snippets/rewrite-examples.snippet): Rewrite syntax examples using only reserved domains; they do not affect real websites.
-- [`tools/validate_config.py`](./tools/validate_config.py): Checks the configuration structure, URLs, and disabled-by-default settings.
+- [`Quantumult-X.conf`](./Quantumult-X.conf): Importable profile; active project rules are embedded in `[filter_local]`.
+- [`rulesets/proxy-services.list`](./rulesets/proxy-services.list): Curated first-party proxy routes for selected developer, AI, and global content services.
+- [`rulesets/direct-cn.list`](./rulesets/direct-cn.list): Curated first-party direct routes for selected mainland China services.
+- [`rulesets/privacy-reject.optional.list`](./rulesets/privacy-reject.optional.list): Optional ad/analytics blocks; intentionally not included in the default profile.
+- [`docs/RULES.md`](./docs/RULES.md): Rule scope, precedence, maintenance, and limitations.
+- [`docs/REWRITES.md`](./docs/REWRITES.md): Rewrite/MitM safety notes and the limits of the supplied examples.
+- [`snippets/rewrite-examples.snippet`](./snippets/rewrite-examples.snippet): Inactive syntax examples using the reserved `example.invalid` domain only.
+- [`tools/build_config.py`](./tools/build_config.py): Embeds active rule sources into the importable profile.
+- [`tools/validate_config.py`](./tools/validate_config.py) and [`tools/test_rules.py`](./tools/test_rules.py): Structural/safety checks and routing regression tests.
 
-## Quick Start
+## Quick start
 
-1. Back up your current configuration in Quantumult X. Download `Quantumult-X.conf` from this repository and import it as a file.
-2. Add a Quantumult X subscription URL provided by a provider **you trust** to `[server_remote]`. This repository does not select a provider or include fabricated nodes.
-3. Check that your provider's node tags match the policy names in `[filter_local]`. The template uses the built-in `proxy`, `direct`, and `reject` policies.
-4. Update the remote resources and inspect the resource and activity logs in Quantumult X. If your network cannot access GitHub, you can replace the URLs with a mirror that you trust and can reach.
-5. Keep app rewrites disabled. Enable a resource only when you specifically need its app rules and have reviewed the upstream content. HTTPS rewrites also require enabling MitM in the app according to its official procedure and installing and trusting the Quantumult X certificate.
+1. Back up your current profile in Quantumult X and import `Quantumult-X.conf`.
+2. Add a subscription from a proxy provider **you trust** in the app. No subscription URL or proxy nodes are supplied here.
+3. The profile uses built-in `proxy`, `direct`, and `reject` policies. Its default is selected-domain routing, mainland China IPs direct, LAN direct, and all unmatched traffic through `proxy`.
+4. If your region or needs differ, edit the first-party files in `rulesets/`, rebuild the profile, and verify matching in Quantumult X before relying on it.
+5. Keep MITM off unless you have reviewed a specific rewrite and understand the certificate's scope.
 
-## Default Behavior
+## Editing and verifying rules
 
-- Ad and tracking domains: `reject`.
-- GFW whitelist exceptions and `loc-cn`: `direct`.
-- GFW rules: `proxy`.
-- LAN and mainland China IP addresses: `direct`.
-- All other traffic: `proxy`.
-
-This is a general starting point for users who need direct routing and proxy routing for mainland China. It is not guaranteed to suit every region, carrier, app, or regulatory environment. If you do not need mainland-China routing, remove `loc-cn` from `[filter_remote]` and `geoip, cn, direct` from `[filter_local]`. Remote lists may block traffic incorrectly; when troubleshooting, first disable the relevant resource temporarily and inspect the match logs.
-
-## Upstream Sources and Licenses
-
-Remote rules and rewrites are published by [`dmulle12/rules`](https://github.com/dmulle12/rules). The advertising rules in that project are converted from Hagezi DNS Blocklists; see the upstream documentation for specific sources, licenses, and update policies. This repository references remote resources without copying their rule data. Quantumult X syntax is based on the [official sample configuration](https://github.com/crossutility/Quantumult-X/blob/master/sample.conf) and the [official Rewrite examples](https://github.com/crossutility/Quantumult-X/blob/master/rewrite.md).
-
-## Validation
+Edit `rulesets/proxy-services.list` or `rulesets/direct-cn.list`, then run:
 
 ```bash
+python3 tools/build_config.py
+python3 tools/build_config.py --check
 python3 tools/validate_config.py
+python3 tools/test_rules.py
 ```
 
-Passing validation means only that the configuration structure and expected security defaults meet this repository's checks. Verify importability and rule matching in Quantumult X.
+The config's generated block must not be edited by hand. The builder and CI ensure it stays synchronized with the first-party sources.
+
+## Scope and limitations
+
+This is an intentionally small, human-reviewable editorial set—not a complete geographic firewall list, GFWList replacement, universal ad blocker, or exhaustive catalog of each service's CDN/API domains. The suffix rules may need adjustment for a particular carrier, app version, or location. A pass in local tests does not prove that every app works; inspect Quantumult X's match/activity logs and disable or change a rule if it causes a problem.
+
+The supported rule syntax follows the official [Quantumult X sample configuration](https://github.com/crossutility/Quantumult-X/blob/master/sample.conf). All domain lists in this repository are maintained here rather than fetched from an upstream rules project.

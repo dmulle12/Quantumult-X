@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Basic structural/safety checks for the repository's Quantumult X profile."""
+"""Validate the importable profile's structure, first-party rules, and safe defaults."""
 from pathlib import Path
 import re
 import sys
@@ -31,28 +31,22 @@ missing = sorted(required - sections.keys())
 if missing:
     errors.append("missing sections: " + ", ".join(f"[{name}]" for name in missing))
 
-active_filters = sections.get("filter_remote", [])
-if len(active_filters) < 4:
-    errors.append("expected at least four active remote filter resources")
-for line in active_filters:
-    if not line.startswith("https://"):
-        errors.append(f"active remote filter is not HTTPS: {line}")
-    if "example." in line or "YOUR_" in line:
-        errors.append(f"placeholder found in active remote filter: {line}")
-
-active_rewrites = sections.get("rewrite_remote", [])
-for line in active_rewrites:
-    if not line.startswith("https://"):
-        errors.append(f"active rewrite entry must be an HTTPS resource URL: {line}")
-    if "enabled=false" not in line:
-        errors.append(f"rewrite resource must remain disabled by default: {line}")
-
+if sections.get("filter_remote"):
+    errors.append("[filter_remote] must be empty; use first-party rulesets embedded in the profile")
+if sections.get("rewrite_remote"):
+    errors.append("[rewrite_remote] must be empty; no external rewrite feeds are allowed by default")
+if sections.get("server_remote"):
+    errors.append("[server_remote] must not contain a provider subscription in the template")
 if not any(line.lower() == "final, proxy" for line in sections.get("filter_local", [])):
     errors.append("[filter_local] must include final, proxy")
-if sections.get("server_remote"):
-    errors.append("[server_remote] must not contain a real provider URL in the template")
+if not any(line.lower() == "geoip, lan, direct" for line in sections.get("filter_local", [])):
+    errors.append("[filter_local] must include geoip, lan, direct")
+if not any(line.lower() == "geoip, cn, direct" for line in sections.get("filter_local", [])):
+    errors.append("[filter_local] must include geoip, cn, direct")
 if re.search(r"(?i)(passphrase\s*=\s*\S|p12\s*=\s*\S|https?://[^\s,]+(?:token|secret|password)=)", text):
     errors.append("possible credential or private certificate value found")
+if "github.com/dmulle12/rules" in text:
+    errors.append("third-party dmulle12/rules dependency remains in the main profile")
 
 if errors:
     print("Configuration validation FAILED:")
@@ -60,4 +54,4 @@ if errors:
         print(f"- {error}")
     sys.exit(1)
 print("Configuration validation passed.")
-print(f"Sections checked: {len(sections)}; active remote filters: {len(active_filters)}; disabled rewrite resources: {len(active_rewrites)}")
+print(f"Sections checked: {len(sections)}; remote filter resources: 0; remote rewrite resources: 0")

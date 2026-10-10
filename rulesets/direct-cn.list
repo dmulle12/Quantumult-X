@@ -1,0 +1,31 @@
+# First-party editorial set: selected mainland China consumer and developer services.
+# IP-geolocation routing remains the broader fallback; these suffixes are explicit overrides.
+host-suffix, 360buyimg.com, direct
+host-suffix, alicdn.com, direct
+host-suffix, aliyun.com, direct
+host-suffix, baidu.com, direct
+host-suffix, bdstatic.com, direct
+host-suffix, biliapi.com, direct
+host-suffix, biliapi.net, direct
+host-suffix, bilibili.com, direct
+host-suffix, byteimg.com, direct
+host-suffix, bytedance.com, direct
+host-suffix, dianping.com, direct
+host-suffix, douyin.com, direct
+host-suffix, hdslb.com, direct
+host-suffix, jd.com, direct
+host-suffix, meituan.com, direct
+host-suffix, qpic.cn, direct
+host-suffix, qlogo.cn, direct
+host-suffix, qq.com, direct
+host-suffix, taobao.com, direct
+host-suffix, tmall.com, direct
+host-suffix, toutiao.com, direct
+host-suffix, weibo.cn, direct
+host-suffix, weibocdn.com, direct
+host-suffix, weibo.com, direct
+host-suffix, weixin.com, direct
+host-suffix, xhscdn.com, direct
+host-suffix, xiaohongshu.com, direct
+host-suffix, zhihu.com, direct
+host-suffix, zhimg.com, direct

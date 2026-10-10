@@ -1,29 +1,18 @@
 # App Rewrites and MitM
 
-## Default State
+## Default state
 
-`Quantumult-X.conf` lists three optional upstream resources, all set to `enabled=false`:
+`Quantumult-X.conf` has an empty `[rewrite_remote]` section and no active `[rewrite_local]` entries. This repository does not fetch third-party app rewrite feeds or claim to include working rewrites for specific live apps.
 
-- Bilibili: Filters some ad endpoints and home-feed items, and modifies some profile and navigation responses.
-- Weibo: Filters some ad responses and promoted items in the feed.
-- FQ Reader: Blocks several advertising and analytics domains listed in the upstream rules.
+[`../snippets/rewrite-examples.snippet`](../snippets/rewrite-examples.snippet) contains commented syntax examples that use only the reserved `example.invalid` domain. They are inert examples; they do not intercept or modify real app traffic.
 
-Rules may change upstream. This document describes only the behavior reviewed at the time of writing and does not guarantee that future versions will behave the same way. Before enabling a resource, review the corresponding [upstream rule files](https://github.com/dmulle12/rules/tree/main/source) and build output.
+## Before writing or enabling a rewrite
 
-## Before Enabling
+1. A rewrite can change a request or response and may break sign-in, search, playback, payments, or other app behavior. Work only with an endpoint and app you control or are authorized to test.
+2. HTTPS response rewrites typically require a Quantumult X MitM certificate. A trusted root certificate can allow the device to decrypt and inspect matching HTTPS traffic locally. Enable this only on devices you control and only for hostnames you deliberately selected.
+3. Never commit `[mitm]` `p12` or `passphrase` values, private keys, or personal certificates.
+4. Start with a narrow hostname and URL pattern; verify the request and response shape against the current app version. Disable the rewrite immediately if unrelated traffic is affected.
 
-1. Rewrites modify requests or responses for specific apps and may cause pages, search, sign-in, playback, or other features to malfunction. Disable the resource to roll back the changes.
-2. Rewriting HTTPS content usually requires a Quantumult X MitM certificate. After installing and trusting the root certificate, the device can decrypt and inspect the relevant HTTPS traffic locally. Enable this only on devices you control and understand the implications.
-3. Do not commit `[mitm]` `p12` or `passphrase` values, private keys, or personal certificates to the repository. The template contains none of these and does not configure MitM hostnames by default.
-4. Enable only rules for apps you use and whose traffic you are willing to modify. Keep unused app rules disabled or remove their entries.
+## Safe example workflow
 
-## Enablement Steps
-
-1. Open `[rewrite_remote]` in `Quantumult-X.conf` and change `enabled=false` to `enabled=true` only for the resources you need.
-2. Update the resources in Quantumult X. Review the `hostname` and rules in each resource's details to confirm their scope.
-3. If the app indicates that MitM is required, first read the official Quantumult X documentation. Then enable MitM in the app, generate and install the certificate, and explicitly trust it in system settings. This template does not install certificates automatically.
-4. Verify that the target app still works. If something goes wrong, disable the resource you just enabled and reconnect the tunnel.
-
-## Local Syntax Example
-
-[`../snippets/rewrite-examples.snippet`](../snippets/rewrite-examples.snippet) contains commented examples using only the reserved `example.invalid` domain; they do not intercept real app traffic.
+The supplied snippet uses a reserved hostname and is not meant to work against a real service. To build a real rewrite, replace the placeholder only with a test endpoint you own, validate the syntax against the official [Quantumult X rewrite documentation](https://github.com/crossutility/Quantumult-X/blob/master/rewrite.md), and review the MITM scope in Quantumult X before importing or enabling it.
