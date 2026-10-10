@@ -1,11 +1,22 @@
-# host<TAB>expected first-party match; final:proxy is the catch-all fallback
-github.com	proxy:github.com
-raw.githubusercontent.com	proxy:githubusercontent.com
-api.openai.com	proxy:openai.com
-subdomain.docker.io	proxy:docker.io
-bilibili.com	direct:bilibili.com
-api.weibo.cn	direct:weibo.cn
-img.xhscdn.com	direct:xhscdn.com
-mygithub.com	final:proxy
-github.com.attacker.invalid	final:proxy
-unknown.example.invalid	final:proxy
+# host<TAB>network (cn|other)<TAB>expected first match; cn without host rule reaches GeoIP direct
+github.com	other	proxy:github.com
+raw.githubusercontent.com	other	proxy:githubusercontent.com
+api.openai.com	other	proxy:openai.com
+subdomain.docker.io	other	proxy:docker.io
+www.bilibili.com	cn	backcn:www.bilibili.com
+live.bilibili.com	cn	backcn:live.bilibili.com
+bilibili.com	cn	direct:bilibili.com
+live.douyin.com	cn	backcn:live.douyin.com
+www.douyin.com	cn	direct:douyin.com
+v.qq.com	cn	backcn:v.qq.com
+y.qq.com	cn	backcn:y.qq.com
+pay.qq.com	cn	direct:qq.com
+music.163.com	cn	backcn:music.163.com
+api.weibo.cn	cn	direct:weibo.cn
+img.xhscdn.com	cn	direct:xhscdn.com
+finance.example.invalid	cn	direct:geoip-cn
+government.example.invalid	cn	direct:geoip-cn
+work.example.invalid	cn	direct:geoip-cn
+mygithub.com	other	final:proxy
+github.com.attacker.invalid	other	final:proxy
+unknown.example.invalid	other	final:proxy

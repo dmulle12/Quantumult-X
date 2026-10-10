@@ -13,6 +13,7 @@ REPOSITORY = "dmulle12/Quantumult-X"
 BRANCH = "main"
 UPDATE_INTERVAL = 172800
 RULESETS = (
+    ("back-cn-media.list", "Project-BackCN", "BackCN"),
     ("proxy-services.list", "Project-Proxy", "proxy"),
     ("direct-cn.list", "Project-Direct-CN", "direct"),
 )
@@ -40,7 +41,7 @@ def read_rule_sets() -> list[tuple[str, str]]:
             if len(fields) != 3:
                 raise ValueError(f"{filename}:{number}: expected a three-field Quantumult X rule")
             kind, value, policy = (field.lower() for field in fields)
-            if policy != required_policy:
+            if policy != required_policy.lower():
                 raise ValueError(f"{filename}:{number}: expected policy {required_policy!r}, got {policy!r}")
             if kind == "host-suffix":
                 if not DOMAIN_RE.fullmatch(value):

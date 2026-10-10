@@ -6,10 +6,14 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ACTIVE_SETS = (("proxy-services.list", "proxy"), ("direct-cn.list", "direct"))
+ACTIVE_SETS = (
+    ("back-cn-media.list", "backcn"),
+    ("proxy-services.list", "proxy"),
+    ("direct-cn.list", "direct"),
+)
 
 
-def load_rules() -> list[tuple[str, str]]:
+def load_rules() -> tuple[list[tuple[str, str]], bool]:
     rules: list[tuple[str, str]] = []
     saw_geoip_cn = False
     for filename, required_policy in ACTIVE_SETS:
@@ -36,11 +40,11 @@ def load_rules() -> list[tuple[str, str]]:
             rules.append((value, policy))
     if not saw_geoip_cn:
         raise ValueError("direct-cn.list must end with geoip, cn, direct")
-    return rules
+    return rules, saw_geoip_cn
 
 
 def main() -> int:
-    rules = load_rules()
+    rules, has_geoip_cn = load_rules()
     failures: list[str] = []
     fixture = ROOT / "tests" / "rule-cases.tsv"
     for number, raw in enumerate(fixture.read_text(encoding="utf-8").splitlines(), 1):
@@ -48,15 +52,23 @@ def main() -> int:
         if not line or line.startswith("#"):
             continue
         fields = line.split(chr(9))
-        if len(fields) != 2:
-            failures.append(f"{fixture.name}:{number}: expected two tab-separated fields")
+        if len(fields) != 3:
+            failures.append(f"{fixture.name}:{number}: expected host, network, and expected-result fields")
             continue
-        host, expected = fields[0].lower(), fields[1]
-        actual = "final:proxy"
+        host, network, expected = fields[0].lower(), fields[1].lower(), fields[2]
+        if network not in {"cn", "other"}:
+            failures.append(f"{fixture.name}:{number}: network must be 'cn' or 'other'")
+            continue
+        actual = None
         for suffix, policy in rules:
             if host == suffix or host.endswith("." + suffix):
                 actual = f"{policy}:{suffix}"
                 break
+        if actual is None:
+            if network == "cn" and has_geoip_cn:
+                actual = "direct:geoip-cn"
+            else:
+                actual = "final:proxy"
         if actual != expected:
             failures.append(f"{fixture.name}:{number}: {host} expected {expected}, got {actual}")
     if failures:
@@ -64,7 +76,7 @@ def main() -> int:
         print("\n".join(f"- {failure}" for failure in failures))
         return 1
     cases = sum(1 for line in fixture.read_text(encoding="utf-8").splitlines() if line.strip() and not line.lstrip().startswith("#"))
-    print(f"Rule tests passed ({cases} host cases; GeoIP fallback order checked).")
+    print(f"Rule tests passed ({cases} host/network cases; service precedence and GeoIP fallback order checked).")
     return 0
 
 

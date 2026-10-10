@@ -33,6 +33,11 @@ if missing:
 
 expected_remote = [
     (
+        "https://raw.githubusercontent.com/dmulle12/Quantumult-X/main/rulesets/back-cn-media.list",
+        "Project-BackCN",
+        "BackCN",
+    ),
+    (
         "https://raw.githubusercontent.com/dmulle12/Quantumult-X/main/rulesets/proxy-services.list",
         "Project-Proxy",
         "proxy",
@@ -49,7 +54,7 @@ if len(remote) != len(expected_remote):
 else:
     resource_pattern = re.compile(
         r"^(https://raw\.githubusercontent\.com/dmulle12/Quantumult-X/main/rulesets/[^,]+), "
-        r"tag=([^,]+), force-policy=(proxy|direct), update-interval=(\d+), enabled=(true|false)$"
+        r"tag=([^,]+), force-policy=([^,]+), update-interval=(\d+), enabled=(true|false)$"
     )
     for index, (line, expected) in enumerate(zip(remote, expected_remote), 1):
         match = resource_pattern.fullmatch(line)
@@ -64,6 +69,8 @@ else:
         if enabled != "true":
             errors.append(f"[filter_remote] line {index}: first-party rule resource must be enabled")
 
+if sections.get("policy", []).count("static = BackCN, direct, proxy") != 1:
+    errors.append("[policy] must define 'static = BackCN, direct, proxy' exactly once (safe default: direct)")
 if sections.get("rewrite_remote"):
     errors.append("[rewrite_remote] must be empty; no external rewrite feeds are allowed by default")
 if sections.get("server_remote"):
