@@ -1,26 +1,41 @@
 #!/usr/bin/env python3
-"""Exercise the project's conservative host-suffix rules against fixture cases."""
+"""Exercise first-party remote host-suffix rules against fixture cases."""
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ACTIVE_SETS = ("proxy-services.list", "direct-cn.list")
+ACTIVE_SETS = (("proxy-services.list", "proxy"), ("direct-cn.list", "direct"))
 
 
 def load_rules() -> list[tuple[str, str]]:
     rules: list[tuple[str, str]] = []
-    for filename in ACTIVE_SETS:
+    saw_geoip_cn = False
+    for filename, required_policy in ACTIVE_SETS:
         path = ROOT / "rulesets" / filename
-        for raw in path.read_text(encoding="utf-8").splitlines():
-            line = raw.strip()
-            if not line or line.startswith(("#", ";")):
+        active = [
+            (number, raw.strip())
+            for number, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1)
+            if raw.strip() and not raw.strip().startswith(("#", ";"))
+        ]
+        for position, (number, line) in enumerate(active):
+            fields = [field.strip().lower() for field in line.split(",")]
+            if len(fields) != 3:
+                raise ValueError(f"{filename}:{number}: expected three rule fields")
+            kind, value, policy = fields
+            if policy != required_policy:
+                raise ValueError(f"{filename}:{number}: expected policy {required_policy}")
+            if kind == "geoip":
+                if filename != "direct-cn.list" or value != "cn" or position != len(active) - 1:
+                    raise ValueError(f"{filename}:{number}: geoip, cn, direct must be the final remote rule")
+                saw_geoip_cn = True
                 continue
-            kind, suffix, policy = (field.strip() for field in line.split(","))
             if kind != "host-suffix":
-                raise ValueError(f"unsupported test rule: {line}")
-            rules.append((suffix.lower(), policy.lower()))
+                raise ValueError(f"{filename}:{number}: unsupported test rule: {line}")
+            rules.append((value, policy))
+    if not saw_geoip_cn:
+        raise ValueError("direct-cn.list must end with geoip, cn, direct")
     return rules
 
 
@@ -32,7 +47,7 @@ def main() -> int:
         line = raw.strip()
         if not line or line.startswith("#"):
             continue
-        fields = line.split("\t")
+        fields = line.split(chr(9))
         if len(fields) != 2:
             failures.append(f"{fixture.name}:{number}: expected two tab-separated fields")
             continue
@@ -48,7 +63,8 @@ def main() -> int:
         print("Rule tests FAILED:")
         print("\n".join(f"- {failure}" for failure in failures))
         return 1
-    print(f"Rule tests passed ({sum(1 for line in fixture.read_text(encoding='utf-8').splitlines() if line.strip() and not line.lstrip().startswith('#'))} cases).")
+    cases = sum(1 for line in fixture.read_text(encoding="utf-8").splitlines() if line.strip() and not line.lstrip().startswith("#"))
+    print(f"Rule tests passed ({cases} host cases; GeoIP fallback order checked).")
     return 0
 
 

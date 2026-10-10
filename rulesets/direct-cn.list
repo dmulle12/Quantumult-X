@@ -1,5 +1,5 @@
 # First-party editorial set: selected mainland China consumer and developer services.
-# IP-geolocation routing remains the broader fallback; these suffixes are explicit overrides.
+# This remote set follows the project proxy set in [filter_remote].
 host-suffix, 360buyimg.com, direct
 host-suffix, alicdn.com, direct
 host-suffix, aliyun.com, direct
@@ -29,3 +29,5 @@ host-suffix, xhscdn.com, direct
 host-suffix, xiaohongshu.com, direct
 host-suffix, zhihu.com, direct
 host-suffix, zhimg.com, direct
+# Final remote rule: mainland-China IP fallback after the explicit domain rules.
+geoip, cn, direct

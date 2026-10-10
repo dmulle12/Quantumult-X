@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the importable profile's structure, first-party rules, and safe defaults."""
+"""Validate the importable profile's structure, remote rules, and safe defaults."""
 from pathlib import Path
 import re
 import sys
@@ -31,22 +31,50 @@ missing = sorted(required - sections.keys())
 if missing:
     errors.append("missing sections: " + ", ".join(f"[{name}]" for name in missing))
 
-if sections.get("filter_remote"):
-    errors.append("[filter_remote] must be empty; use first-party rulesets embedded in the profile")
+expected_remote = [
+    (
+        "https://raw.githubusercontent.com/dmulle12/Quantumult-X/main/rulesets/proxy-services.list",
+        "Project-Proxy",
+        "proxy",
+    ),
+    (
+        "https://raw.githubusercontent.com/dmulle12/Quantumult-X/main/rulesets/direct-cn.list",
+        "Project-Direct-CN",
+        "direct",
+    ),
+]
+remote = sections.get("filter_remote", [])
+if len(remote) != len(expected_remote):
+    errors.append(f"[filter_remote] must contain exactly {len(expected_remote)} first-party resources")
+else:
+    resource_pattern = re.compile(
+        r"^(https://raw\.githubusercontent\.com/dmulle12/Quantumult-X/main/rulesets/[^,]+), "
+        r"tag=([^,]+), force-policy=(proxy|direct), update-interval=(\d+), enabled=(true|false)$"
+    )
+    for index, (line, expected) in enumerate(zip(remote, expected_remote), 1):
+        match = resource_pattern.fullmatch(line)
+        if not match:
+            errors.append(f"[filter_remote] line {index}: invalid first-party remote resource")
+            continue
+        url, tag, policy, interval, enabled = match.groups()
+        if (url, tag, policy) != expected:
+            errors.append(f"[filter_remote] line {index}: expected {expected[0]} with tag={expected[1]} and force-policy={expected[2]}")
+        if int(interval) < 3600:
+            errors.append(f"[filter_remote] line {index}: update interval must be at least one hour")
+        if enabled != "true":
+            errors.append(f"[filter_remote] line {index}: first-party rule resource must be enabled")
+
 if sections.get("rewrite_remote"):
     errors.append("[rewrite_remote] must be empty; no external rewrite feeds are allowed by default")
 if sections.get("server_remote"):
     errors.append("[server_remote] must not contain a provider subscription in the template")
-if not any(line.lower() == "final, proxy" for line in sections.get("filter_local", [])):
-    errors.append("[filter_local] must include final, proxy")
-if not any(line.lower() == "geoip, lan, direct" for line in sections.get("filter_local", [])):
-    errors.append("[filter_local] must include geoip, lan, direct")
-if not any(line.lower() == "geoip, cn, direct" for line in sections.get("filter_local", [])):
-    errors.append("[filter_local] must include geoip, cn, direct")
+local = sections.get("filter_local", [])
+if local != ["geoip, lan, direct", "final, proxy"]:
+    errors.append("[filter_local] must contain only the LAN override and final proxy fallback, in that order")
+if any(line.lower() == "geoip, cn, direct" for line in local):
+    errors.append("China GeoIP direct fallback must remain remote so it does not shadow remote host rules")
 if re.search(r"(?i)(passphrase\s*=\s*\S|p12\s*=\s*\S|https?://[^\s,]+(?:token|secret|password)=)", text):
     errors.append("possible credential or private certificate value found")
-if "github.com/dmulle12/rules" in text:
-    errors.append("third-party dmulle12/rules dependency remains in the main profile")
 
 if errors:
     print("Configuration validation FAILED:")
@@ -54,4 +82,4 @@ if errors:
         print(f"- {error}")
     sys.exit(1)
 print("Configuration validation passed.")
-print(f"Sections checked: {len(sections)}; remote filter resources: 0; remote rewrite resources: 0")
+print(f"Sections checked: {len(sections)}; first-party remote filter resources: {len(remote)}; remote rewrite resources: 0")
