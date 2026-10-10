@@ -7,6 +7,7 @@ A reviewable Quantumult X profile with **project-authored, first-party remote ro
 ## Repository layout
 
 - [`Quantumult-X.conf`](./Quantumult-X.conf): Importable profile; references the project-owned remote rule sets in `[filter_remote]` and defines the configurable `BackCN` selector.
+- [`rulesets/lan.list`](./rulesets/lan.list): Explicit IPv4/IPv6 local-network ranges routed directly; the profile also retains its local LAN override and excluded routes.
 - [`rulesets/back-cn-media.list`](./rulesets/back-cn-media.list): Narrow official web endpoints for selected video, livestream, and music services.
 - [`rulesets/proxy-services.list`](./rulesets/proxy-services.list): Curated proxy routes for selected developer, AI, and global content services.
 - [`rulesets/direct-cn.list`](./rulesets/direct-cn.list): Curated direct routes for selected mainland China services, followed by the China GeoIP fallback.
@@ -45,7 +46,7 @@ python3 tools/validate_config.py
 python3 tools/test_rules.py
 ```
 
-The builder generates the `[filter_remote]` resource block; do not edit it by hand. Resources are loaded in this order: selected `BackCN` media endpoints, selected generic proxy services, then selected direct-China rules with `geoip, cn, direct` last. The local filter section retains only the LAN override and `final, proxy` fallback so it does not shadow those remote host rules.
+The builder generates the `[filter_remote]` resource block; do not edit it by hand. Resources are loaded in this order: explicit LAN CIDRs, selected `BackCN` media endpoints, selected generic proxy services, then selected direct-China rules with `geoip, cn, direct` last. The earlier local `geoip, lan, direct` rule and `excluded_routes` remain in place as immediate LAN protections; `final, proxy` handles unmatched traffic.
 
 ## Scope and limitations
 

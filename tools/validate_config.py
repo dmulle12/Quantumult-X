@@ -62,6 +62,11 @@ if "# resource_parser_url=https://github.com/dmulle12/rules/raw/main/js/qx-extra
 
 expected_remote = [
     (
+        "https://raw.githubusercontent.com/dmulle12/Quantumult-X/main/rulesets/lan.list",
+        "Project-LAN",
+        "direct",
+    ),
+    (
         "https://raw.githubusercontent.com/dmulle12/Quantumult-X/main/rulesets/back-cn-media.list",
         "Project-BackCN",
         "BackCN",

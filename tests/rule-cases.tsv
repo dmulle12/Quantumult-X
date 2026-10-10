@@ -29,3 +29,14 @@ mygithub.com	other	final:proxy
 github.com.attacker.invalid	other	final:proxy
 api.amemv.com.attacker.invalid	other	final:proxy
 unknown.example.invalid	other	final:proxy
+# literal-IP<TAB>lan<TAB>expected result for the explicit remote LAN CIDRs
+10.0.0.1	lan	direct:lan
+172.31.255.254	lan	direct:lan
+192.168.1.10	lan	direct:lan
+100.64.0.1	lan	direct:lan
+169.254.1.2	lan	direct:lan
+127.0.0.1	lan	direct:lan
+fc00::1	lan	direct:lan
+fe80::1	lan	direct:lan
+::1	lan	direct:lan
+100.63.255.255	lan	final:proxy

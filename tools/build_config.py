@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import ipaddress
 import re
 import sys
 from pathlib import Path
@@ -13,6 +14,7 @@ REPOSITORY = "dmulle12/Quantumult-X"
 BRANCH = "main"
 UPDATE_INTERVAL = 172800
 RULESETS = (
+    ("lan.list", "Project-LAN", "direct"),
     ("back-cn-media.list", "Project-BackCN", "BackCN"),
     ("proxy-services.list", "Project-Proxy", "proxy"),
     ("direct-cn.list", "Project-Direct-CN", "direct"),
@@ -24,7 +26,8 @@ DOMAIN_RE = re.compile(r"(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)
 
 def read_rule_sets() -> list[tuple[str, str]]:
     collected: list[tuple[str, str]] = []
-    seen: set[str] = set()
+    seen_suffixes: set[str] = set()
+    seen_networks: set[tuple[str, str]] = set()
     for filename, _tag, required_policy in RULESETS:
         path = ROOT / "rulesets" / filename
         if not path.is_file():
@@ -44,18 +47,34 @@ def read_rule_sets() -> list[tuple[str, str]]:
             if policy != required_policy.lower():
                 raise ValueError(f"{filename}:{number}: expected policy {required_policy!r}, got {policy!r}")
             if kind == "host-suffix":
+                if filename == "lan.list":
+                    raise ValueError(f"{filename}:{number}: LAN rules must use explicit CIDR ranges")
                 if not DOMAIN_RE.fullmatch(value):
                     raise ValueError(f"{filename}:{number}: invalid DNS suffix {value!r}")
-                if value in seen:
+                if value in seen_suffixes:
                     raise ValueError(f"{filename}:{number}: duplicate active suffix {value!r}")
-                seen.add(value)
+                seen_suffixes.add(value)
+            elif kind in {"ip-cidr", "ip6-cidr"}:
+                if filename != "lan.list":
+                    raise ValueError(f"{filename}:{number}: CIDR rules are only allowed in lan.list")
+                try:
+                    network = ipaddress.ip_network(value, strict=True)
+                except ValueError as exc:
+                    raise ValueError(f"{filename}:{number}: invalid CIDR {value!r}") from exc
+                expected_version = 4 if kind == "ip-cidr" else 6
+                if network.version != expected_version:
+                    raise ValueError(f"{filename}:{number}: {kind} requires an IPv{expected_version} range")
+                key = (kind, str(network))
+                if key in seen_networks:
+                    raise ValueError(f"{filename}:{number}: duplicate active CIDR {value!r}")
+                seen_networks.add(key)
             elif kind == "geoip":
                 if filename != "direct-cn.list" or value != "cn" or position != len(active) - 1:
                     raise ValueError(f"{filename}:{number}: only a final 'geoip, cn, direct' rule is allowed")
             else:
                 raise ValueError(f"{filename}:{number}: unsupported rule type {kind!r}")
             collected.append((filename, line))
-    if not any(line.lower().startswith("geoip, cn, direct") for filename, line in collected if filename == "direct-cn.list"):
+    if not any(filename == "direct-cn.list" and line.lower() == "geoip, cn, direct" for filename, line in collected):
         raise ValueError("direct-cn.list must end with 'geoip, cn, direct'")
     return collected
 
