@@ -1,8 +1,12 @@
-# Narrow official web endpoints for selected video, live-streaming, and music services.
+# Selected official web endpoints and user-specified media/app host suffixes.
 # These are not exhaustive app/CDN allowlists; see docs/RULES.md for evidence and scope.
 host-suffix, live.bilibili.com, BackCN
 host-suffix, www.bilibili.com, BackCN
 host-suffix, live.douyin.com, BackCN
+host-suffix, amemv.com, BackCN
+host-suffix, snssdk.com, BackCN
+host-suffix, douyinvod.com, BackCN
+host-suffix, douyinpic.com, BackCN
 host-suffix, v.qq.com, BackCN
 host-suffix, music.163.com, BackCN
 host-suffix, y.qq.com, BackCN

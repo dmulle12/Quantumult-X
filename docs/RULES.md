@@ -6,7 +6,7 @@ The importable profile references three rule sources from this public repository
 
 | Source | Forced policy | Scope |
 |---|---|---|
-| [`back-cn-media.list`](../rulesets/back-cn-media.list) | `BackCN` | A small set of official video, livestream, and music web endpoints; not all China domains or complete app/CDN allowlists. |
+| [`back-cn-media.list`](../rulesets/back-cn-media.list) | `BackCN` | Selected official video, livestream, and music web endpoints plus explicitly requested media/app host suffixes; not all China domains or complete app/CDN allowlists. |
 | [`proxy-services.list`](../rulesets/proxy-services.list) | `proxy` | Selected developer, AI, and global content-service domains. |
 | [`direct-cn.list`](../rulesets/direct-cn.list) | `direct` | Existing selected mainland China service domains, followed by the China GeoIP fallback. |
 
@@ -14,7 +14,7 @@ Quantumult X's `force-policy` parameter makes each remote resource use its confi
 
 ## BackCN domain evidence and scope
 
-The active BackCN rules are deliberately limited to first-party official service website hosts verified on the service pages below:
+The active BackCN rules include first-party official service website hosts verified on the service pages below, plus four additional host suffixes explicitly specified for BackCN routing:
 
 | Rule suffix | Service evidence |
 |---|---|
@@ -24,8 +24,12 @@ The active BackCN rules are deliberately limited to first-party official service
 | `v.qq.com` | [Tencent Video official site](https://v.qq.com/) |
 | `music.163.com` | [NetEase Cloud Music official site](https://music.163.com/) |
 | `y.qq.com` | [QQ Music official site](https://y.qq.com/) |
+| `amemv.com` | User-specified BackCN addition |
+| `snssdk.com` | User-specified BackCN addition |
+| `douyinvod.com` | User-specified BackCN addition |
+| `douyinpic.com` | User-specified BackCN addition |
 
-The entries match only each named host and its subdomains. They do not match the registrable parent domain unless that parent is itself listed. Some app playback, API, or CDN traffic may use other domains; those are intentionally not guessed or included. Add further endpoints only when supported by reliable service-domain evidence and, ideally, confirmed in Quantumult X's activity log.
+Each entry matches its named host and subdomains, but does not match the registrable parent domain unless that parent is listed. The four additional suffixes are included at the user's direction and are not a claim of complete app/API/CDN coverage; other traffic may use additional domains. Add further endpoints only when supported by reliable service-domain evidence and, ideally, confirmed in Quantumult X's activity log.
 
 ## Match order and priority
 

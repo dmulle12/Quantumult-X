@@ -7,6 +7,14 @@ www.bilibili.com	cn	backcn:www.bilibili.com
 live.bilibili.com	cn	backcn:live.bilibili.com
 bilibili.com	cn	direct:bilibili.com
 live.douyin.com	cn	backcn:live.douyin.com
+amemv.com	cn	backcn:amemv.com
+api.amemv.com	cn	backcn:amemv.com
+snssdk.com	cn	backcn:snssdk.com
+api.snssdk.com	cn	backcn:snssdk.com
+douyinvod.com	cn	backcn:douyinvod.com
+v1.douyinvod.com	cn	backcn:douyinvod.com
+douyinpic.com	cn	backcn:douyinpic.com
+p1.douyinpic.com	cn	backcn:douyinpic.com
 www.douyin.com	cn	direct:douyin.com
 v.qq.com	cn	backcn:v.qq.com
 y.qq.com	cn	backcn:y.qq.com
@@ -19,4 +27,5 @@ government.example.invalid	cn	direct:geoip-cn
 work.example.invalid	cn	direct:geoip-cn
 mygithub.com	other	final:proxy
 github.com.attacker.invalid	other	final:proxy
+api.amemv.com.attacker.invalid	other	final:proxy
 unknown.example.invalid	other	final:proxy
