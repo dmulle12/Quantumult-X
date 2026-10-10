@@ -31,6 +31,35 @@ missing = sorted(required - sections.keys())
 if missing:
     errors.append("missing sections: " + ", ".join(f"[{name}]" for name in missing))
 
+expected_options = {
+    "general": [
+        "network_check_url=http://wifi.vivo.com.cn/generate_204",
+        "server_check_url=http://cp.cloudflare.com/generate_204",
+        "fallback_udp_policy=reject",
+        "geo_location_checker=http://ip-api.com/json/?fields=11024,https://github.com/dmulle12/rules/raw/main/js/qx-loc.js",
+        "resource_parser_url = https://cdn.jsdelivr.net/gh/KOP-XIAO/QuantumultX@master/Scripts/resource-parser.js",
+        "dns_exclusion_list=*.cmpassport.com, *.jegotrip.com.cn, *.icitymobile.mobi, id6.me, *.cmbchina.com",
+        "dns_reject_domain_behavior=nxdomain",
+        "excluded_routes=192.168.0.0/16, 172.16.0.0/12, 100.64.0.0/10, 10.0.0.0/8",
+    ],
+    "dns": [
+        "no-system",
+        "no-ipv6",
+        "server=8.8.8.8",
+        "server=8.8.4.4",
+        "doh-server=https://dns.google/dns-query",
+    ],
+}
+for section_name, options in expected_options.items():
+    actual = sections.get(section_name, [])
+    for option in options:
+        if option not in actual:
+            errors.append(f"[{section_name}] is missing selected option: {option}")
+if ";prefer-doh3" not in text.splitlines():
+    errors.append("the selected profile must keep prefer-doh3 commented out")
+if "# resource_parser_url=https://github.com/dmulle12/rules/raw/main/js/qx-extract.js" not in text.splitlines():
+    errors.append("the qx-extract.js parser reference must remain inactive as a comment")
+
 expected_remote = [
     (
         "https://raw.githubusercontent.com/dmulle12/Quantumult-X/main/rulesets/back-cn-media.list",

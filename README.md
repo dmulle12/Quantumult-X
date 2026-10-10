@@ -26,6 +26,14 @@ A reviewable Quantumult X profile with **project-authored, first-party remote ro
 5. The profile uses built-in `proxy`, `direct`, and `reject` policies. Selected media website endpoints use `BackCN`; existing explicit China routes and the China GeoIP fallback remain `direct`; unmatched traffic uses `proxy`.
 6. Keep MITM off unless you have reviewed a specific rewrite and understand the certificate's scope.
 
+## Selected network, DNS, and helper resources
+
+The profile keeps the selected return-to-China network settings in `[general]`: the connectivity check uses `http://wifi.vivo.com.cn/generate_204`, while the server check uses `http://cp.cloudflare.com/generate_204`. The location checker is configured with `http://ip-api.com/json/?fields=11024` and the specified `qx-loc.js` resource at `https://github.com/dmulle12/rules/raw/main/js/qx-loc.js`.
+
+`resource_parser_url` points to the selected KOP-XIAO Quantumult X resource parser, served through jsDelivr at `https://cdn.jsdelivr.net/gh/KOP-XIAO/QuantumultX@master/Scripts/resource-parser.js`. The `qx-extract.js` parser line in the profile is commented out and is not active.
+
+The `[dns]` section explicitly configures `no-system`, `no-ipv6`, Google DNS at `8.8.8.8` and `8.8.4.4`, plus `https://dns.google/dns-query`. `prefer-doh3` remains commented out. These are the profile's selected DNS and helper-resource settings; the documentation does not substitute different resolvers or parser/location services.
+
 ## Editing and verifying rules
 
 Edit one of the source lists under `rulesets/`, then run:
